@@ -24,7 +24,7 @@ func NewDockerClient() (*client.Client, error) {
 	return ClientPtr, nil
 }
 
-func GetChannelFromSocket(client client.Client, ctx context.Context) (<-chan events.Message, <-chan error) {
+func GetChannelFromSocket(client *client.Client, ctx context.Context) (<-chan events.Message, <-chan error) {
 	now := time.Now()
 	options := types.EventsOptions{
 		Since: now.Format(time.UnixDate),

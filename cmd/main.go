@@ -14,6 +14,6 @@ func main() {
 		panic(err)
 	}
 	ctx := context.Background()
-	docker.GetChannelFromSocket(*cli, ctx)
+	docker.GetChannelFromSocket(cli, ctx)
 
 }
