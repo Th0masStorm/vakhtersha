@@ -3,6 +3,12 @@
 package docker
 
 import (
+	"context"
+	"time"
+
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/events"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
 )
 
@@ -16,4 +22,19 @@ func NewDockerClient() (*client.Client, error) {
 	}
 
 	return ClientPtr, nil
+}
+
+func GetChannelFromSocket(client client.Client, ctx context.Context) (<-chan events.Message, <-chan error) {
+	now := time.Now()
+	options := types.EventsOptions{
+		Since: now.Format(time.UnixDate),
+		Until: now.AddDate(1, 0, 0).Format(time.UnixDate),
+		Filters: filters.NewArgs(filters.KeyValuePair{
+			Key:   "type",
+			Value: "container",
+		}),
+	}
+	messages, errors := client.Events(ctx, options)
+	return messages, errors
+
 }
