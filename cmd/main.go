@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/Th0masStorm/vakhtersha/docker"
 )
@@ -14,6 +15,11 @@ func main() {
 		panic(err)
 	}
 	ctx := context.Background()
-	docker.GetChannelFromSocket(cli, ctx)
+	events, errors := docker.GetChannelFromSocket(cli, ctx)
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+	go docker.ReadEventsFromChannel(events)
+	go docker.ReadErrorsFromChannel(errors)
+	wg.Wait()
 
 }

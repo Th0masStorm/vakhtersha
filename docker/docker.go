@@ -4,6 +4,7 @@ package docker
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -27,14 +28,26 @@ func NewDockerClient() (*client.Client, error) {
 func GetChannelFromSocket(client *client.Client, ctx context.Context) (<-chan events.Message, <-chan error) {
 	now := time.Now()
 	options := types.EventsOptions{
-		Since: now.Format(time.UnixDate),
-		Until: now.AddDate(1, 0, 0).Format(time.UnixDate),
+		Since: now.Format(time.RFC3339),
+		Until: now.AddDate(1, 0, 0).Format(time.RFC3339),
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "type",
 			Value: "container",
 		}),
 	}
-	messages, errors := client.Events(ctx, options)
-	return messages, errors
+	events, errors := client.Events(ctx, options)
+	return events, errors
 
+}
+
+func ReadEventsFromChannel(events <-chan events.Message) {
+	for event := range events {
+		fmt.Println(event)
+	}
+}
+
+func ReadErrorsFromChannel(errors <-chan error) {
+	for err := range errors {
+		fmt.Println(err)
+	}
 }
